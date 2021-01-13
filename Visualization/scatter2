@@ -55,12 +55,12 @@ def graphBuilder(coords, coordsW, sport, sex):
     Sex = 'male' if sex == 'M' else 'female'
     plt.plot(coords[0], coords[1], 'x', label='Contestant')
     plt.plot(coordsW[0], coordsW[1], 'x', label='Gold Medal')
-    plt.title(f'Generic bodytypes of Olympic {sport} {Sex} athletes')
-    plt.xlabel(f'Weight of Olympic {sport} {Sex} athletes')
-    plt.ylabel(f'Height of Olympic {sport} {Sex} athletes')
+    plt.title(f'Generic bodytypes of Olympic {sport} {Sex} athletes through time')
+    plt.xlabel(f'Year')
+    plt.ylabel(f'IMC of Olympic {sport} {Sex} athletes')
     if not os.path.exists('image'):
         os.makedirs('image')
-    plt.savefig(f'image/{sport}_{sex}.pdf')
+    plt.savefig(f'image/ZZ_{sport}_{sex}.pdf')
     plt.close()
 
 def builder(sport, csv, sex='M'):
@@ -70,13 +70,15 @@ def builder(sport, csv, sex='M'):
     y_coordW = list()
     i = 0
     for i in range (len(csv['Sport'])):
-        if (csv['Sport'][i] == sport and csv['Sex'][i] == sex and csv['Year'][i] >= 1980):
+        if (csv['Sport'][i] == sport and csv['Sex'][i] == sex):
             if (csv['Medal'][i] != 'Gold'):
-                x_coord.append(csv['Weight'][i])
-                y_coord.append(csv['Height'][i])
+                imc = csv['Weight'][i] / ((csv['Height'][i] / 100.0) ** 2)
+                y_coord.append(imc)
+                x_coord.append(csv['Year'][i])
             else:
-                x_coordW.append(csv['Weight'][i])
-                y_coordW.append(csv['Height'][i])
+                imc = csv['Weight'][i] / ((csv['Height'][i] / 100.0) ** 2)
+                y_coordW.append(imc)
+                x_coordW.append(csv['Year'][i])
     if (len(x_coord) == 0):
         print(f'No measurements given for {sex} {sport} athletes. Skipping.')
     else:
