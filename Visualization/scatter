@@ -1,30 +1,39 @@
 #!/usr/bin/env python3
 
-import os, sys
-import csv
+import os, sys, csv
+import numpy as np
 import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
 
-disciplines = list()
-dataset = '../dataset/athlete_events.csv'
-selector = ''
-sports = list()
+
+_disciplines = list()
+_dataset = '../dataset/athlete_events.csv'
+_selector = ''
+_sports = list()
 
 def newSport(test):
-    for sport in sports:
+    for sport in _sports:
         if sport == test:
             return False
     return True
 
 def getDisciplines(csv):
+    global _sports
     for line in csv['Sport']:
         if (newSport(line) == True):
-#            print(line)
-            sports.append(line)
+            _sports.append(line)
 
 def pickInfoFromDataset():
-    with open(dataset, 'r') as f:
-        filtered_csv = pd.read_csv(dataset, usecols=['Height', 'Weight', 'Sex' ,'Sport'])
-        getDisciplines(filtered_csv)
+    try:
+        with open(_dataset, 'r') as f:
+            filtered_csv = pd.read_csv(_dataset, usecols=['Height', 'Weight', 'Sex' ,'Sport', 'Medal', 'Year'])
+            getDisciplines(filtered_csv)
+            f.close()
+            return filtered_csv
+    except:
+        print(f'The program could not find the dataset.\nPlease make sure the archive has been unzipped, and that the dataset is located at the following path : \'{_dataset}\'')
+        exit(1)
 
 def printHelp():
     print('USAGE:')
@@ -36,16 +45,54 @@ def printHelp():
     print(f'Here are every available disciplines :\n{sports}')
 
 def parseArgs(size):
+    global _selector
     if (size == 2 and not newSport(sys.argv[1])):
-        selector = sys.argv[1]
-        print(selector)
+        _selector = sys.argv[1]
     else:
         printHelp()
 
+def graphBuilder(coords, coordsW, sport, sex):
+    Sex = 'male' if sex == 'M' else 'female'
+    plt.plot(coords[0], coords[1], 'x', label='contestant')
+    plt.plot(coordsW[0], coordsW[1], 'x', label='Gold Medal')
+    plt.title(f'Generic bodytypes of Olympic {sport} {Sex} athletes')
+    plt.xlabel(f'Weight of Olympic {sport} {Sex} athletes')
+    plt.ylabel(f'Height of Olympic {sport} {Sex} athletes')
+    if not os.path.exists('image'):
+        os.makedirs('image')
+    plt.savefig(f'image/{sport}_{sex}.pdf')
+    plt.close()
+
+def builder(sport, csv, sex='M'):
+    x_coord = list()
+    y_coord = list()
+    x_coordW = list()
+    y_coordW = list()
+    i = 0
+    for i in range (len(csv['Sport'])):
+        if (csv['Sport'][i] == sport and csv['Sex'][i] == sex and csv['Year'][i] >= 1980):
+            if (csv['Medal'][i] != 'Gold'):
+                x_coord.append(csv['Weight'][i])
+                y_coord.append(csv['Height'][i])
+            else:
+                x_coordW.append(csv['Weight'][i])
+                y_coordW.append(csv['Height'][i])
+    graphBuilder([x_coord, y_coord], [x_coordW, y_coordW], sport, sex)
+    if (sex == 'M'):
+        builder(sport, csv, 'F')
+
 def main():
-    pickInfoFromDataset()
+    csv = pickInfoFromDataset()
     if len(sys.argv) != 1:
         parseArgs(len(sys.argv))
+    if _selector != '':
+        builder(_selector, csv)
+    else:
+        i = 1
+        for sport in _sports:
+            print(f'{sport} ({i}/{len(_sports)})')
+            builder(sport, csv)
+            i = i + 1
 
 if __name__ == "__main__":
     main()
