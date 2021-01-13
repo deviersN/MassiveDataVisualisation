@@ -1,0 +1,51 @@
+#!/usr/bin/env python3
+
+import os, sys
+import csv
+import pandas as pd
+
+disciplines = list()
+dataset = '../dataset/athlete_events.csv'
+selector = ''
+sports = list()
+
+def newSport(test):
+    for sport in sports:
+        if sport == test:
+            return False
+    return True
+
+def getDisciplines(csv):
+    for line in csv['Sport']:
+        if (newSport(line) == True):
+#            print(line)
+            sports.append(line)
+
+def pickInfoFromDataset():
+    with open(dataset, 'r') as f:
+        filtered_csv = pd.read_csv(dataset, usecols=['Height', 'Weight', 'Sex' ,'Sport'])
+        getDisciplines(filtered_csv)
+
+def printHelp():
+    print('USAGE:')
+    print(f'\tpython3 {sys.argv[0]} [Sport]\n')
+    print('DEFINITION:')
+    print('\tThis projetcs compares the height and weight of every Olympic athlete in every discipline. In order to only see a specific discipline, precise it as argument to the program.\n')
+    print('EXAMPLE:')
+    print(f'\t python3 {sys.argv[0]} Fencing\n')
+    print(f'Here are every available disciplines :\n{sports}')
+
+def parseArgs(size):
+    if (size == 2 and not newSport(sys.argv[1])):
+        selector = sys.argv[1]
+        print(selector)
+    else:
+        printHelp()
+
+def main():
+    pickInfoFromDataset()
+    if len(sys.argv) != 1:
+        parseArgs(len(sys.argv))
+
+if __name__ == "__main__":
+    main()
