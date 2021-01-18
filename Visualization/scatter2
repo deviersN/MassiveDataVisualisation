@@ -59,8 +59,8 @@ def graphBuilder(coords, coordsW, sport, sex):
     plt.xlabel(f'Year')
     plt.ylabel(f'IMC of Olympic {sport} {Sex} athletes')
     if not os.path.exists('image'):
-        os.makedirs('image')
-    plt.savefig(f'image/ZZ_{sport}_{sex}.pdf')
+        os.makedirs('scatterImage')
+    plt.savefig(f'scatterImage/ZZ_{sport}_{sex}.pdf')
     plt.close()
 
 def builder(sport, csv, sex='M'):

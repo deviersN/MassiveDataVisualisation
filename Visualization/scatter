@@ -59,8 +59,8 @@ def graphBuilder(coords, coordsW, sport, sex):
     plt.xlabel(f'Weight of Olympic {sport} {Sex} athletes')
     plt.ylabel(f'Height of Olympic {sport} {Sex} athletes')
     if not os.path.exists('image'):
-        os.makedirs('image')
-    plt.savefig(f'image/{sport}_{sex}.pdf')
+        os.makedirs('scatterImage')
+    plt.savefig(f'scatterImage/{sport}_{sex}.pdf')
     plt.close()
 
 def builder(sport, csv, sex='M'):
