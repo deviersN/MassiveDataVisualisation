@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 
-import os, sys, csv
-import numpy as np
+import os, sys
 import pandas as pd
-import seaborn as sns
 import matplotlib.pyplot as plt
 
 
@@ -39,7 +37,7 @@ def printHelp():
     print('USAGE:')
     print(f'\tpython3 {sys.argv[0]} [Sport]\n')
     print('DEFINITION:')
-    print('\tThis projetcs compares the height and weight of every Olympic athlete in every discipline. In order to only see a specific discipline, precise it as argument to the program.\n')
+    print('\tThis project compares the height and weight of every Olympic athlete in every discipline. In order to only see a specific discipline, precise it as argument to the program.\n')
     print('EXAMPLE:')
     print(f'\t python3 {sys.argv[0]} Fencing\n')
     print(f'Here are every available disciplines :\n{sports}')
@@ -58,7 +56,7 @@ def graphBuilder(coords, coordsW, sport, sex):
     plt.title(f'Generic bodytypes of Olympic {sport} {Sex} athletes through time')
     plt.xlabel(f'Year')
     plt.ylabel(f'IMC of Olympic {sport} {Sex} athletes')
-    if not os.path.exists('image'):
+    if not os.path.exists('scatterImage'):
         os.makedirs('scatterImage')
     plt.savefig(f'scatterImage/ZZ_{sport}_{sex}.pdf')
     plt.close()

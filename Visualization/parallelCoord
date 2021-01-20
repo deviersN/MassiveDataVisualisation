@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import sys
-import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 
@@ -63,7 +62,7 @@ def dataTranslator(csv):
             colMedal.append(_medals.index(line))
         else:
             colMedal.append(3)
-
+    print(len(colYear))
     visualizer(colTeam, colYear, colSport, colMedal)
     return colTeam, colYear, colSport, colMedal
 
@@ -121,7 +120,7 @@ def printHelp():
     print('USAGE:')
     print(f'\tpython3 {sys.argv[0]} [Options] [...]\n')
     print('DEFINITION:')
-    print('\tThis projets presents a diagram showing the medals obtains by each Olympic country in every discipline since 1896.')
+    print('\tThis project presents a diagram showing the medals obtains by each Olympic country in every discipline since 1896.')
     print('\tYou can hide one or several fields by executing the program with the following argments: "--medal", "--team", "--sport" or --year".\n')
     print('EXAMPLE:')
     print(f'\t python3 {sys.argv[0]} --team\n')
