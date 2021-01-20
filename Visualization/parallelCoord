@@ -1,12 +1,25 @@
 #!/usr/bin/env python3
 
+import os.path
+
 import plotly.graph_objects as go
 import pandas as pd
+import numpy as np
 
-_dataset = '../dataset/athlete_events.csv'
+import dataBuilder
+
+def isReadable():
+    reducedDB = '_data.npy'
+    if not os.path.isfile(reducedDB):
+        dataBuilder.buildData()
+
 
 def main():
-    df = pd.read_csv(_dataset)
+    isReadable()
+
+    df = np.load("data.npy")
+    print(df)
+
     fig = go.Figure(data=
         go.Parcoords(
             line = dict(color = df['Year'],
@@ -15,7 +28,7 @@ def main():
                     cmin = 1900,
                     cmax = 2020),
             dimensions = list([
-                dict(label = 'Medal', values = df['Medal'])
+                dict(label = 'Medal', values = df['Medal']),
                 dict(label = "Country", values = df['Team']),
                 dict(label = 'Sport', values = df['Sport']),
                 dict(label = 'Year', values = df['Year']),
