@@ -2,6 +2,9 @@
 
 import numpy as np
 import pandas as pd
+import plotly.graph_objects as go
+
+
 _dataset = '../dataset/athlete_events.csv'
 
 _sports = list()
@@ -46,6 +49,34 @@ def dataSelector():
         print(f'The program could not find the dataset.\nPlease make sure the archive has been unzipped, and that the dataset is located at the following path : \'{_dataset}\'')
         exit(1)
 
+def visualizer(team, year, sport, medal):
+    fig = go.Figure(data=
+        go.Parcoords(
+            line = dict(color = year,
+                    colorscale = 'Electric',
+                    showscale = True,
+                    cmin = 1900,
+                    cmax = 2020),
+            dimensions = list([
+                dict(label = 'Medal',
+                    tickvals = list(range(0, len(_medals))),
+                    ticktext = ["Gold", "Silver", "Bronze", "nan"],
+                    values = medal),
+                dict(label = "Country",
+                    tickvals = list(range(0, len(_teams))),
+                    ticktext = _teams,
+                    values = team),
+                dict(label = 'Sport',
+                    tickvals = list(range(0, len(_sports))),
+                    ticktext = _sports,
+                    values = sport),
+                dict(label = 'Year',
+                    values = year),
+            ])
+        )
+    )
+    fig.show()
+
 def dataTranslator(csv):
     colTeam = list()
     colYear = list()
@@ -63,27 +94,14 @@ def dataTranslator(csv):
         else:
             colMedal.append(3)
 
+    visualizer(colTeam, colYear, colSport, colMedal)
+
     data = np.column_stack((colTeam, csv['Year']))
     data = np.column_stack((data, colSport))
     data = np.column_stack((data, colMedal))
-#    print(data)
     return data
 
 def buildData():
     filtered_csv = dataSelector()
     data = dataTranslator(filtered_csv)
-
-    column_1 = np.random.uniform(3, 5, 10)
-    noise_2 = np.random.normal(0, 0.01, 10)
-    column_2 = 4*column_1+noise_2
-    noise_3 = np.random.normal(0, 0.1, 10)
-    column_3 = 50 - 2*column_2+noise_3
-    noise_4 = np.random.normal(0, 5, 10)
-    column_4 = 10+column_1+noise_4
-
-    doto = np.column_stack((column_1, column_2))
-    doto = np.column_stack((doto, column_3))
-    doto = np.column_stack((doto, column_4))
-    print(doto)
-
     np.save("data", data)

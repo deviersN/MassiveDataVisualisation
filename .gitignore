@@ -1,4 +1,6 @@
 #*#
 *~
-Visualization/image/
+Visualization/scatterImage/
 *.csv
+__pycache__/
+data.npy
