@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import os.path
+import sys
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
@@ -9,6 +9,7 @@ _dataset = '../dataset/athlete_events.csv'
 _sports = list()
 _teams = list()
 _medals = ["Gold", "Silver", "Bronze", "nan"]
+_reducer = [True, True, True, True]
 
 def newSport(test):
     for sport in _sports:
@@ -37,9 +38,7 @@ def getCountries(csv):
 def dataSelector():
     try:
         with open(_dataset, 'r') as f:
-            print("open")
             filtered_csv = pd.read_csv(_dataset, usecols=['NOC', 'Year', 'Sport', 'Medal'])
-            print("filtered")
             getDisciplines(filtered_csv)
             getCountries(filtered_csv)
             f.close()
@@ -68,7 +67,39 @@ def dataTranslator(csv):
     visualizer(colTeam, colYear, colSport, colMedal)
     return colTeam, colYear, colSport, colMedal
 
+def usersChoice(team, year, sport, medal):
+    content = list()
+    if _reducer[0] is True:
+        content.append(
+            dict(label = 'Medal',
+                tickvals = list(range(0, len(_medals))),
+                ticktext = ["Gold", "Silver", "Bronze", "None"],
+                values = medal),
+        )
+    if _reducer[1] is True:
+        content.append(
+            dict(label = "Country",
+                tickvals = list(range(0, len(_teams))),
+                ticktext = _teams,
+                values = team),
+        )
+    if _reducer[2] is True:
+        content.append(
+            dict(label = 'Sport',
+                tickvals = list(range(0, len(_sports))),
+                ticktext = _sports,
+                values = sport),
+        )
+    if _reducer[3] is True:
+        content.append(
+            dict(label = 'Year',
+                values = year),
+        )
+    return content
+
 def visualizer(team, year, sport, medal):
+    content = usersChoice(team, year, sport, medal)
+
     fig = go.Figure(data=
         go.Parcoords(
             line = dict(color = year,
@@ -76,22 +107,7 @@ def visualizer(team, year, sport, medal):
                     showscale = True,
                     cmin = 1900,
                     cmax = 2020),
-            dimensions = list([
-                dict(label = 'Medal',
-                    tickvals = list(range(0, len(_medals))),
-                    ticktext = ["Gold", "Silver", "Bronze", "None"],
-                    values = medal),
-                dict(label = "Country",
-                    tickvals = list(range(0, len(_teams))),
-                    ticktext = _teams,
-                    values = team),
-                dict(label = 'Sport',
-                    tickvals = list(range(0, len(_sports))),
-                    ticktext = _sports,
-                    values = sport),
-                dict(label = 'Year',
-                    values = year),
-            ])
+            dimensions = content
         )
     )
     fig.show()
@@ -101,7 +117,41 @@ def buildData():
     colTeam, colYear, colSport, colMedal = dataTranslator(filtered_csv)
     visualizer(colTeam, colYear, colSport, colMedal)
 
+def printHelp():
+    print('USAGE:')
+    print(f'\tpython3 {sys.argv[0]} [Options] [...]\n')
+    print('DEFINITION:')
+    print('\tThis projets presents a diagram showing the medals obtains by each Olympic country in every discipline since 1896.')
+    print('\tYou can hide one or several fields by executing the program with the following argments: "--medal", "--team", "--sport" or --year".\n')
+    print('EXAMPLE:')
+    print(f'\t python3 {sys.argv[0]} --team\n')
+    print('NOTE:')
+    print('\tHiding more than two fields is useless.')
+    print('\tThe generation and manipulation of the graph may take a heavy toll on your computers ressources.')
+    print('\tTall screen recommended, or the countries names may mix with one another.\n')
+
+def parseArgs(size):
+    for arg in sys.argv:
+        if arg == sys.argv[0]:
+            pass
+        elif arg == '--medal':
+            _reducer[0] = False
+        elif arg == '--team':
+            _reducer[1] = False
+        elif arg == '--sport':
+            _reducer[2] = False
+        elif arg == '--year':
+            _reducer[3] = False
+        elif arg == '-h' or arg == '--help':
+            printHelp()
+            exit(0)
+        else:
+            printHelp()
+            exit(1)
+
 def main():
+    if len(sys.argv) != 1:
+        parseArgs(len(sys.argv))
     buildData()
 
 if __name__ == "__main__":
