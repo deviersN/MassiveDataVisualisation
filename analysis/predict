@@ -1,0 +1,79 @@
+#!/usr/bin/env python3
+
+import os, sys
+import pandas as pd
+import numpy as np 
+import matplotlib.pyplot as plt
+import scipy.stats as stats
+
+
+_disciplines = list()
+_dataset = '../dataset/athlete_events.csv'
+_selector = ''
+_sports = list()
+
+
+#                imc = csv['Weight'][i] / ((csv['Height'][i] / 100.0) ** 2)
+
+def newSport(test):
+    for sport in _sports:
+        if sport == test:
+            return False
+    return True
+
+def getDisciplines(csv):
+    global _sports
+    for line in csv['Sport']:
+        if (newSport(line) == True):
+            _sports.append(line)
+
+def pickInfoFromDataset():
+    try:
+        with open(_dataset, 'r') as f:
+            filtered_csv = pd.read_csv(_dataset, usecols=['Height', 'Weight', 'Sex' ,'Sport', 'Medal', 'Year'])
+            getDisciplines(filtered_csv)
+            f.close()
+            return filtered_csv
+    except:
+        print(f'The program could not find the dataset.\nPlease make sure the archive has been unzipped, and that the dataset is located at the following path : \'{_dataset}\'')
+        exit(1)
+
+
+def main():
+    csv = pickInfoFromDataset()
+    if len(sys.argv) != 5:
+        print (' usage: ./predict SPORT YEAR SEX[M/F] WEIGHT')
+        exit()
+    sport = sys.argv[1]
+    year = int(sys.argv[2])
+    sex = sys.argv[3]
+    taille = float(sys.argv[4])
+    imcs = []
+
+
+    
+
+    sportdf = csv[csv['Sport'] == sport]
+    sexedf = sportdf[sportdf['Sex'] == sex]
+    yeardf = sexedf[sexedf['Year'] == year]
+
+    yeardf = yeardf.dropna()
+    for i in yeardf.index:
+        imcs.append((yeardf['Weight'][i] / ((yeardf['Height'][i] / 100.0) ** 2)))
+
+    imcs = pd.DataFrame({'IMC' :imcs})
+
+    z_scores = stats.zscore(imcs)
+
+    abs_z_scores = np.abs(z_scores)
+
+    filtered_entries = (abs_z_scores < 3).all(axis=1)
+
+    imcs = imcs[filtered_entries]
+
+    imc = imcs['IMC'].mean()
+    
+
+    print("In the sport ", sport," Predicted weight for ", taille ,"M is : ",  imc * taille * taille, "kg")
+if __name__ == "__main__":
+    main()
